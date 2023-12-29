@@ -1,11 +1,9 @@
-# Copyright (c) HashiCorp, Inc.
-# SPDX-License-Identifier: MPL-2.0
-
 terraform {
-
   cloud {
+    organization = "pims-homelab"
+
     workspaces {
-      name = "learn-terraform-eks"
+      name = "dev-eks"
     }
   }
 
@@ -34,3 +32,7 @@ terraform {
   required_version = "~> 1.3"
 }
 
+provider "aws" {
+  region = var.region
+  allowed_account_ids = ["521245555176"]
+}
