@@ -33,6 +33,6 @@ terraform {
 }
 
 provider "aws" {
-  region = var.region
+  region              = var.region
   allowed_account_ids = ["521245555176"]
 }
