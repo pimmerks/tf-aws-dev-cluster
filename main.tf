@@ -56,41 +56,32 @@ module "eks" {
     ami_type = "AL2_x86_64"
 
     # Allow more pods per node
-    pre_bootstrap_user_data = <<-EOT
-  #!/bin/bash
-  set -ex
-  cat <<-EOF > /etc/profile.d/bootstrap.sh
-  export USE_MAX_PODS=false
-  export KUBELET_EXTRA_ARGS="--max-pods=110"
-  EOF
-  # Source extra environment variables in bootstrap script
-  sed -i '/^set -o errexit/a\\nsource /etc/profile.d/bootstrap.sh' /etc/eks/bootstrap.sh
-  EOT
+    bootstrap_extra_args = "--use-max-pods false --kubelet-extra-args '--max-pods=110'"
   }
 
   eks_managed_node_groups = {
-    one = {
-      name = "node-group-1"
+    main = {
+      name = "node-group-main"
 
       instance_types = ["t3.small"]
 
       min_size     = 1
       max_size     = 3
-      desired_size = 2
+      desired_size = 1
     }
 
-    two = {
-      name = "node-group-2"
+    spot_only = {
+      name = "node-group-spot-only"
 
       instance_types = ["t3.small"]
+      capacity_type = "SPOT"
 
-      min_size     = 1
-      max_size     = 2
+      min_size     = 0
+      max_size     = 3
       desired_size = 1
     }
   }
 }
-
 
 # https://aws.amazon.com/blogs/containers/amazon-ebs-csi-driver-is-now-generally-available-in-amazon-eks-add-ons/ 
 data "aws_iam_policy" "ebs_csi_policy" {
