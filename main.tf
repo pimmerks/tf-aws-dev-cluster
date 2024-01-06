@@ -8,19 +8,14 @@ data "aws_availability_zones" "available" {
 }
 
 locals {
-  cluster_name = "eks-dev-${random_string.suffix.result}"
-}
-
-resource "random_string" "suffix" {
-  length  = 8
-  special = false
+  cluster_name = "rnd-dev"
 }
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "5.0.0"
+  version = "5.4.0"
 
-  name = "dev-vpc"
+  name = "${local.cluster_name}-vpc"
 
   cidr = "10.0.0.0/16"
   azs  = slice(data.aws_availability_zones.available.names, 0, 3)
@@ -45,7 +40,7 @@ module "vpc" {
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "19.15.3"
+  version = "19.21.0"
 
   cluster_name    = local.cluster_name
   cluster_version = var.kubernetes_version
@@ -53,6 +48,9 @@ module "eks" {
   vpc_id                         = module.vpc.vpc_id
   subnet_ids                     = module.vpc.private_subnets
   cluster_endpoint_public_access = true
+
+  # disable logging to cloudwatch
+  cluster_enabled_log_types = []
 
   eks_managed_node_group_defaults = {
     ami_type = "AL2_x86_64"
