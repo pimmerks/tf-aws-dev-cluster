@@ -55,30 +55,37 @@ module "eks" {
   eks_managed_node_group_defaults = {
     ami_type = "AL2_x86_64"
 
+    # By default, the module creates a launch template to ensure tags are propagated to instances, etc.,
+    # so we need to disable it to use the default template provided by the AWS EKS managed node group service
+    use_custom_launch_template = false
+
     # Allow more pods per node
-    bootstrap_extra_args = "--use-max-pods false --kubelet-extra-args '--max-pods=110'"
+#    bootstrap_extra_args = "--use-max-pods false --kubelet-extra-args '--max-pods=110' --cni-prefix-delegation-enabled"
+#    bootstrap_extra_args = ""
   }
 
   eks_managed_node_groups = {
     main = {
-      name = "node-group-main"
+      launch_template_name = "${local.cluster_name}-main-on-demand"
+      name = "on-demand"
 
       instance_types = ["t3.small"]
 
       min_size     = 1
-      max_size     = 6
-      desired_size = 3
+      max_size     = 3
+      desired_size = 2
     }
 
     spot_only = {
-      name = "node-group-spot-only"
+      launch_template_name = "${local.cluster_name}-spot"
+      name = "spot"
 
       instance_types = ["t3.small"]
       capacity_type = "SPOT"
 
       min_size     = 0
-      max_size     = 3
-      desired_size = 1
+      max_size     = 5
+      desired_size = 0
     }
   }
 }
