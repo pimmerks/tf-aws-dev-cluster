@@ -8,12 +8,12 @@ data "aws_availability_zones" "available" {
 }
 
 locals {
-  cluster_name = "rnd-dev"
+  cluster_name = "pim-dev"
 }
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "5.5.1"
+  version = "5.5.2"
 
   name = "${local.cluster_name}-vpc"
 
@@ -40,7 +40,7 @@ module "vpc" {
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "19.21.0"
+  version = "20.4.0"
 
   cluster_name    = local.cluster_name
   cluster_version = var.kubernetes_version
@@ -66,8 +66,8 @@ module "eks" {
       instance_types = ["t3.small"]
 
       min_size     = 1
-      max_size     = 3
-      desired_size = 1
+      max_size     = 6
+      desired_size = 3
     }
 
     spot_only = {
@@ -90,7 +90,7 @@ data "aws_iam_policy" "ebs_csi_policy" {
 
 module "irsa-ebs-csi" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
-  version = "5.33.0"
+  version = "5.34.0"
 
   create_role                   = true
   role_name                     = "AmazonEKSTFEBSCSIRole-${module.eks.cluster_name}"
