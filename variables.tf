@@ -13,5 +13,11 @@ variable "kubernetes_version" {
 variable "ebs_addon_version" {
   description = "EBS addon version"
   type        = string
-  default     = "v1.26.0-eksbuild.1"
+  default     = "v1.28.0-eksbuild.1"
+}
+
+variable "vpc_cni_addon_version" {
+  description = "VPC CNI addon version"
+  type        = string
+  default     = "v1.16.3-eksbuild.2"
 }
