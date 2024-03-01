@@ -11,7 +11,7 @@ data "aws_iam_policy" "vpc_cni_policy" {
 
 module "irsa-ebs-csi" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
-  version = "5.34.0"
+  version = "5.35.0"
 
   create_role                   = true
   role_name                     = "AmazonEKSTFEBSCSIRole-${module.eks.cluster_name}"
@@ -22,7 +22,7 @@ module "irsa-ebs-csi" {
 
 module "irsa-vpc-cni" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
-  version = "5.34.0"
+  version = "5.35.0"
 
   allow_self_assume_role        = true
   create_role                   = true
