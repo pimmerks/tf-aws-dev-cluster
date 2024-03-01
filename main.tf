@@ -49,6 +49,9 @@ module "eks" {
   subnet_ids                     = module.vpc.private_subnets
   cluster_endpoint_public_access = true
 
+  authentication_mode = "API"
+  enable_cluster_creator_admin_permissions = true
+
   # disable logging to cloudwatch
   cluster_enabled_log_types = []
 
@@ -57,96 +60,36 @@ module "eks" {
 
     # By default, the module creates a launch template to ensure tags are propagated to instances, etc.,
     # so we need to disable it to use the default template provided by the AWS EKS managed node group service
-    use_custom_launch_template = false
+    use_custom_launch_template = true
+    create_launch_template = true
 
     # Allow more pods per node
-#    bootstrap_extra_args = "--use-max-pods false --kubelet-extra-args '--max-pods=110' --cni-prefix-delegation-enabled"
+    # bootstrap_extra_args = "--use-max-pods false --kubelet-extra-args '--max-pods=110' --cni-prefix-delegation-enabled"
     bootstrap_extra_args = "--use-max-pods false --kubelet-extra-args '--max-pods=110'"
   }
 
   eks_managed_node_groups = {
     main = {
       launch_template_name = "${local.cluster_name}-main-on-demand"
-      name = "on-demand"
+      name                 = "on-demand"
 
       instance_types = ["t3.small"]
 
       min_size     = 1
       max_size     = 3
-      desired_size = 2
+      desired_size = 1
     }
 
     spot_only = {
       launch_template_name = "${local.cluster_name}-spot"
-      name = "spot"
+      name                 = "spot"
 
       instance_types = ["t3.small"]
-      capacity_type = "SPOT"
+      capacity_type  = "SPOT"
 
       min_size     = 0
       max_size     = 5
       desired_size = 0
     }
-  }
-}
-
-# https://aws.amazon.com/blogs/containers/amazon-ebs-csi-driver-is-now-generally-available-in-amazon-eks-add-ons/ 
-data "aws_iam_policy" "ebs_csi_policy" {
-  arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
-}
-
-data "aws_iam_policy" "vpc_cni_policy" {
-  arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
-}
-
-module "irsa-ebs-csi" {
-  source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
-  version = "5.34.0"
-
-  create_role                   = true
-  role_name                     = "AmazonEKSTFEBSCSIRole-${module.eks.cluster_name}"
-  provider_url                  = module.eks.oidc_provider
-  role_policy_arns              = [data.aws_iam_policy.ebs_csi_policy.arn]
-  oidc_fully_qualified_subjects = ["system:serviceaccount:kube-system:ebs-csi-controller-sa"]
-}
-
-module "irsa-vpc-cni" {
-  source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
-  version = "5.34.0"
-
-  allow_self_assume_role        = true
-  create_role                   = true
-  role_name                     = "AmazonEKSTFVPCCNIRole-${module.eks.cluster_name}"
-  provider_url                  = module.eks.oidc_provider
-  role_policy_arns              = [data.aws_iam_policy.vpc_cni_policy.arn]
-  oidc_fully_qualified_subjects = ["system:serviceaccount:kube-system:aws-node"]
-}
-
-resource "aws_eks_addon" "ebs-csi" {
-  cluster_name             = module.eks.cluster_name
-  addon_name               = "aws-ebs-csi-driver"
-  addon_version            = var.ebs_addon_version
-  service_account_role_arn = module.irsa-ebs-csi.iam_role_arn
-  configuration_values = ""
-  tags = {
-    "eks_addon" = "ebs-csi"
-    "terraform" = "true"
-  }
-}
-
-resource "aws_eks_addon" "vpc-cni" {
-  cluster_name             = module.eks.cluster_name
-  addon_name               = "vpc-cni"
-  addon_version            = var.vpc_cni_addon_version
-  service_account_role_arn = module.irsa-vpc-cni.iam_role_arn
-  configuration_values     = jsonencode({
-    "env" = {
-      "ENABLE_PREFIX_DELEGATION" = "true"
-      "WARM_PREFIX_TARGET" = "1"
-    }
-  })
-  tags = {
-    "eks_addon" = "vpc-cni"
-    "terraform" = "true"
   }
 }
