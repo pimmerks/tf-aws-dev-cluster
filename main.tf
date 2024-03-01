@@ -61,7 +61,7 @@ module "eks" {
 
     # Allow more pods per node
 #    bootstrap_extra_args = "--use-max-pods false --kubelet-extra-args '--max-pods=110' --cni-prefix-delegation-enabled"
-#    bootstrap_extra_args = ""
+    bootstrap_extra_args = "--use-max-pods false --kubelet-extra-args '--max-pods=110'"
   }
 
   eks_managed_node_groups = {
