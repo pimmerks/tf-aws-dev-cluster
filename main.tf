@@ -13,7 +13,7 @@ locals {
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "5.5.2"
+  version = "5.6.0"
 
   name = "${local.cluster_name}-vpc"
 
