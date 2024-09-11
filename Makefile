@@ -1,6 +1,10 @@
 TF_CLI = $(shell which terraform)
 TF_DOCS_CLI = $(shell which terraform-docs)
 
+# Include environment
+include .env
+export
+
 .PHONY: init
 init:
 	$(TF_CLI) init

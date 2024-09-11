@@ -7,15 +7,11 @@ data "aws_availability_zones" "available" {
   }
 }
 
-locals {
-  cluster_name = "pim-dev"
-}
-
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "5.5.2"
 
-  name = "${local.cluster_name}-vpc"
+  name = "${var.cluster_name}-vpc"
 
   cidr = "10.0.0.0/16"
   azs  = slice(data.aws_availability_zones.available.names, 0, 3)
@@ -28,13 +24,13 @@ module "vpc" {
   enable_dns_hostnames = true
 
   public_subnet_tags = {
-    "kubernetes.io/cluster/${local.cluster_name}" = "shared"
-    "kubernetes.io/role/elb"                      = 1
+    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+    "kubernetes.io/role/elb"                    = 1
   }
 
   private_subnet_tags = {
-    "kubernetes.io/cluster/${local.cluster_name}" = "shared"
-    "kubernetes.io/role/internal-elb"             = 1
+    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+    "kubernetes.io/role/internal-elb"           = 1
   }
 }
 
@@ -42,14 +38,14 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "20.4.0"
 
-  cluster_name    = local.cluster_name
+  cluster_name    = var.cluster_name
   cluster_version = var.kubernetes_version
 
   vpc_id                         = module.vpc.vpc_id
   subnet_ids                     = module.vpc.private_subnets
   cluster_endpoint_public_access = true
 
-  authentication_mode = "API"
+  authentication_mode                      = "API"
   enable_cluster_creator_admin_permissions = true
 
   # disable logging to cloudwatch
@@ -61,7 +57,7 @@ module "eks" {
     # By default, the module creates a launch template to ensure tags are propagated to instances, etc.,
     # so we need to disable it to use the default template provided by the AWS EKS managed node group service
     use_custom_launch_template = true
-    create_launch_template = true
+    create_launch_template     = true
 
     # Allow more pods per node
     # bootstrap_extra_args = "--use-max-pods false --kubelet-extra-args '--max-pods=110' --cni-prefix-delegation-enabled"
@@ -70,7 +66,7 @@ module "eks" {
 
   eks_managed_node_groups = {
     main = {
-      launch_template_name = "${local.cluster_name}-main-on-demand"
+      launch_template_name = "${var.cluster_name}-main-on-demand"
       name                 = "on-demand"
 
       instance_types = ["t3.small"]
@@ -81,7 +77,7 @@ module "eks" {
     }
 
     spot_only = {
-      launch_template_name = "${local.cluster_name}-spot"
+      launch_template_name = "${var.cluster_name}-spot"
       name                 = "spot"
 
       instance_types = ["t3.small"]

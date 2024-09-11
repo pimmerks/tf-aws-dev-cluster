@@ -21,3 +21,14 @@ variable "vpc_cni_addon_version" {
   type        = string
   default     = "v1.16.3-eksbuild.2"
 }
+
+variable "cluster_name" {
+  type        = string
+  description = "The name of the cluster to create"
+}
+
+variable "allowed_account_ids" {
+  type        = list(string)
+  description = "The allowed AWS account ids"
+  default     = []
+}

@@ -1,9 +1,8 @@
 terraform {
   cloud {
-    organization = "pims-homelab"
-
+    # export TF_CLOUD_ORGANIZATION="..."
+    # export TF_WORKSPACE="..."
     workspaces {
-      name = "dev-eks"
     }
   }
 
@@ -34,5 +33,5 @@ terraform {
 
 provider "aws" {
   region              = var.region
-  allowed_account_ids = ["521245555176"]
+  allowed_account_ids = var.allowed_account_ids
 }

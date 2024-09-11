@@ -2,11 +2,12 @@
 
 This project provisions a development cluster within AWS.
 
+## Setup
+Create an `.env` file by `cp .env.example .env`, and fill it in.
+Note, for state backend, this uses [Terraform Cloud](https://app.terraform.io/).
+
 ## Plan and apply
 ```shell
-# Set AWS_PROFILE to the correct value
-export AWS_PROFILE=<val>
-
 # Plan outputs the terraform plan and creates the .plan file.
 make plan
 
@@ -16,8 +17,5 @@ make apply
 
 ## Destroy
 ```shell
-# Set AWS_PROFILE to the correct value
-export AWS_PROFILE=<val>
-
 make destroy
 ```
