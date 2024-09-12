@@ -37,33 +37,12 @@ resource "aws_eks_addon" "ebs-csi" {
   addon_name               = "aws-ebs-csi-driver"
   addon_version            = var.ebs_addon_version
   service_account_role_arn = module.irsa-ebs-csi.iam_role_arn
-#  configuration_values     = <<EOT
-#{
-#  "controller": {
-#    "affinity": {
-#      "podAntiAffinity": {
-#        "requiredDuringSchedulingIgnoredDuringExecution": [
-#          {
-#            "labelSelector": {
-#              "matchExpressions": [
-#                {
-#                  "key": "app.kubernetes.io/component",
-#                  "operator": "In",
-#                  "values": [
-#                    "csi-driver"
-#                  ]
-#                }
-#              ]
-#            },
-#            "topologyKey": "kubernetes.io/hostname"
-#          }
-#        ]
-#      }
-#    }
-#  }
-#}
-#EOT
-
+  configuration_values     = jsonencode({
+    "controller" = {
+      # TODO: Change this when deploying a cluster with more then 1 node
+      "replicaCount" = 1
+    }
+  })
   tags = {
     "eks_addon" = "ebs-csi"
     "terraform" = "true"

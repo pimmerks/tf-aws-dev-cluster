@@ -3,6 +3,7 @@
 This project provisions a development cluster within AWS.
 
 ## Setup
+
 Create an `.env` file by `cp .env.example .env`, and fill it in.
 Note, for state backend, this uses [Terraform Cloud](https://app.terraform.io/).
 
@@ -12,6 +13,7 @@ make init
 ```
 
 ## Plan and apply
+
 ```shell
 # Plan outputs the terraform plan and creates the .plan file.
 make plan
@@ -21,9 +23,12 @@ make apply
 ```
 
 ## Destroy
+
 ```shell
 make destroy
 ```
 
 ## Upgrade providers
+
 To upgrade providers, you can update the `providers.tf` file, and run `make init-upgrade`.
+

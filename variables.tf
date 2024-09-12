@@ -7,19 +7,19 @@ variable "region" {
 variable "kubernetes_version" {
   description = "Kubernetes version"
   type        = string
-  default     = "1.28"
+  default     = "1.30"
 }
 
 variable "ebs_addon_version" {
   description = "EBS addon version"
   type        = string
-  default     = "v1.28.0-eksbuild.1"
+  default     = "v1.34.0-eksbuild.1"
 }
 
 variable "vpc_cni_addon_version" {
   description = "VPC CNI addon version"
   type        = string
-  default     = "v1.16.3-eksbuild.2"
+  default     = "v1.18.3-eksbuild.3"
 }
 
 variable "cluster_name" {
